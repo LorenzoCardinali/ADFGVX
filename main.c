@@ -14,14 +14,17 @@ int main(int argc, char *argv[]) {
     } else if (argc == 5 && strcmp(argv[1], "encode") == 0) {
 
         encode(argv[2], argv[3], argv[4]);
+        printf("File '%s' criptato con successo usando la chiave '%s'!\n", argv[3], argv[2]);
 
     } else if (argc == 5 && strcmp(argv[1], "decode") == 0) {
 
         decode(argv[2], argv[3], argv[4]);
+        printf("File '%s' decriptato con successo usando la chiave '%s'!\n", argv[3], argv[2]);
 
     } else if (argc == 9 && strcmp(argv[1], "genkey") == 0) {
 
         genkey(argv[2], argv[3], argv[4], argv[5], argv[6], argv[7], argv[8]);
+        printf("Chiave '%s' creata con successo!\n", argv[2]);
 
     } else {
         perror("Errore inserimento argomenti\n"

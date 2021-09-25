@@ -22,7 +22,6 @@ FILE *open_output_file(char *name) {
         exit(1);
     }
 
-
     return file;
 }
 

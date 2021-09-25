@@ -9,13 +9,14 @@
 #include "filelib.h"
 
 /**
- * Divisione euclidea che permette il modulo dei numeri negativi.
+ * Genera il modulo tra 2 numeri.
+ * Se il valore di val2 e' < 0 il risultato del modulo sara' 0.
  *
  * @param val1 Parametro 1.
  * @param val2 Parametro 2.
- * @return Divisione euclidea.
+ * @return modulo.
  */
-int euc_mod(int val1, int val2);
+int mod(int val1, int val2);
 
 /**
  * Riempie una lista con una serie definita.
@@ -118,21 +119,21 @@ void genkey(char *key_file, char *s1, char *k1, char *s2, char *k2, char *s3, ch
     lklist *L1 = NULL;
 
     const int key_lenght[] = {16, 16, 256};
-    const int vars[6] = {strtol(s1, NULL, 16), strtol(k1, NULL, 36),
-                         strtol(s2, NULL, 16), strtol(k2, NULL, 36),
-                         strtol(s3, NULL, 16), strtol(k3, NULL, 36)};
+    const int vars[6] = {strtol(s1, NULL, 36), strtol(k1, NULL, 36),
+                         strtol(s2, NULL, 36), strtol(k2, NULL, 36),
+                         strtol(s3, NULL, 36), strtol(k3, NULL, 36)};
 
     for (int i = 0; i < 3; ++i) {
         L1 = fill_list(L1, key_lenght[i]);
 
-        int c = euc_mod(vars[i * 2], key_lenght[i]), n = countNodes(L1);
+        int c = mod(vars[i * 2], key_lenght[i]), n = countNodes(L1);
 
         while (n != 0) {
             byte v = get_node(L1, c);
             L1 = remove_node(L1, c);
             fputc(v, keyfile);
             n = countNodes(L1);
-            c = euc_mod(c + vars[i * 2 + 1], n);
+            c = mod(c + vars[i * 2 + 1], n);
         }
     }
 
@@ -152,8 +153,8 @@ void encode_file(t_key *key_table, FILE *input_file, FILE *output_file) {
         position->b = fgetc(input_file);
         find_byte(key_table, position);
 
-        b2 = key_table->C[euc_mod(position->i + position->k, 16)] << 4 ^
-             key_table->R[euc_mod(position->j + position->k, 16)];
+        b2 = key_table->C[mod(position->i + position->k, 16)] << 4 ^
+             key_table->R[mod(position->j + position->k, 16)];
 
         fputc(b2, output_file);
     }
@@ -168,14 +169,14 @@ void decode_file(t_key *key_table, FILE *input_file, FILE *output_file) {
         position->b = fgetc(input_file);
         find_nibble(key_table, position);
 
-        b2 = key_table->K[euc_mod(position->j - position->k, 16)]
-        [euc_mod(position->i - position->k, 16)];
+        b2 = key_table->K[mod(position->j - position->k, 16)]
+        [mod(position->i - position->k, 16)];
 
         fputc(b2, output_file);
     }
 }
 
-int euc_mod(int val1, int val2) {
+int mod(int val1, int val2) {
     if (val2 == 0)
         return 0;
 
