@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "adfgvx.h"
 #include "linklistlib.h"
 #include "filelib.h"
@@ -86,13 +87,14 @@ void find_nibble(t_key *key_table, t_pos *position);
 
 void encode(char *key_file, char *input_file, char *output_file) {
     FILE *key = open_input_file(key_file);
-    t_key *keytable = malloc(sizeof(t_key));
-    fill_table(key, keytable);
+    t_key keytable;
+    memset(&keytable, 0, sizeof(t_key));
+    fill_table(key, &keytable);
 
     FILE *input = open_input_file(input_file);
     FILE *output = open_output_file(output_file);
 
-    encode_file(keytable, input, output);
+    encode_file(&keytable, input, output);
 
     close_file(key);
     close_file(input);
@@ -101,13 +103,14 @@ void encode(char *key_file, char *input_file, char *output_file) {
 
 void decode(char *key_file, char *input_file, char *output_file) {
     FILE *key = open_input_file(key_file);
-    t_key *keytable = malloc(sizeof(t_key));
-    fill_table(key, keytable);
+    t_key keytable;
+    memset(&keytable, 0, sizeof(t_key));
+    fill_table(key, &keytable);
 
     FILE *input = open_input_file(input_file);
     FILE *output = open_output_file(output_file);
 
-    decode_file(keytable, input, output);
+    decode_file(&keytable, input, output);
 
     close_file(key);
     close_file(input);
@@ -145,32 +148,34 @@ void genkey(char *key_file, char *s1, char *k1, char *s2, char *k2, char *s3, ch
  */
 
 void encode_file(t_key *key_table, FILE *input_file, FILE *output_file) {
-    t_pos *position = malloc(sizeof(t_pos));
+    t_pos position;
+    memset(&position, 0, sizeof(t_pos));
     size_t file_length = file_size(input_file);
     byte b2;
 
-    for (position->k = 0; position->k < file_length; ++position->k) {
-        position->b = fgetc(input_file);
-        find_byte(key_table, position);
+    for (position.k = 0; position.k < file_length; ++position.k) {
+        position.b = fgetc(input_file);
+        find_byte(key_table, &position);
 
-        b2 = key_table->C[mod(position->i + position->k, 16)] << 4 ^
-             key_table->R[mod(position->j + position->k, 16)];
+        b2 = key_table->C[mod(position.i + position.k, 16)] << 4 ^
+             key_table->R[mod(position.j + position.k, 16)];
 
         fputc(b2, output_file);
     }
 }
 
 void decode_file(t_key *key_table, FILE *input_file, FILE *output_file) {
-    t_pos *position = malloc(sizeof(t_pos));
+    t_pos position;
+    memset(&position, 0, sizeof(t_pos));
     size_t file_length = file_size(input_file);
     byte b2;
 
-    for (position->k = 0; position->k < file_length; ++position->k) {
-        position->b = fgetc(input_file);
-        find_nibble(key_table, position);
+    for (position.k = 0; position.k < file_length; ++position.k) {
+        position.b = fgetc(input_file);
+        find_nibble(key_table, &position);
 
-        b2 = key_table->K[mod(position->j - position->k, 16)]
-        [mod(position->i - position->k, 16)];
+        b2 = key_table->K[mod(position.j - position.k, 16)]
+        [mod(position.i - position.k, 16)];
 
         fputc(b2, output_file);
     }
